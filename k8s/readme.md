@@ -34,3 +34,27 @@ template :
 Volume
 
 ***********************************
+
+HPA : It needs a metric server to be used
+
+In Container :
+
+resources:
+  requests:
+    cpu: "100m"
+    memory: "128Mi"
+
+  limits:
+    cpu: "500m"
+    memory: "512Mi"
+
+**********************************
+VPA : Install VPA controllers first as VPA is a CRD
+
+git clone https://github.com/kubernetes/autoscaler.git
+cd autoscaler/vertical-pod-autoscaler
+kubectl apply -f deploy/vpa-v1-crd-gen.yaml
+kubectl apply -f deploy/
+kubectl get pods -n kube-system | grep vpa
+
+In Container Put resource request
