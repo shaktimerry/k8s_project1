@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        IMAGE = "shaktimerry4/demo-app:${BUILD_NUMBER}"
+        IMAGE = "shaktimerry4/nginx-app:${BUILD_NUMBER}"
     }
 
     stages {
@@ -36,9 +36,6 @@ pipeline {
 
             // Remove local Docker image
             bat "docker rmi %IMAGE% || exit /b 0"
-
-            // Optional: remove dangling images
-            bat "for /f %i in ('docker images -f ^"dangling=true^" -q') do docker rmi %i"
         }
 
         always {
