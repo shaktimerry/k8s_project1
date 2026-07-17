@@ -47,7 +47,7 @@ pipeline {
                     // bat "kubectl apply -f k8s/vpa.yaml"
 
                     // Update deployment with the newly built image
-                    bat "kubectl set image deployment/nginx-app nginx-app=%IMAGE% -n jenkins-demo"
+                    bat "kubectl set image deployment/hello-nginx nginx=%IMAGE% -n project1"
 
                     // Wait for rollout
                     bat "kubectl rollout status deployment/nginx-app -n jenkins-demo"
