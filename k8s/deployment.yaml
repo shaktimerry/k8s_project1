@@ -46,7 +46,7 @@ spec:
       containers:
       - name: nginx
 
-        image: shaktimerry4/hello-world-nginx:v2
+        image: shaktimerry4/nginx-app:latest
 
         imagePullPolicy: Always
 
