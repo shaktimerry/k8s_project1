@@ -50,7 +50,7 @@ pipeline {
                     bat "kubectl set image deployment/hello-nginx nginx=%IMAGE% -n project1"
 
                     // Wait for rollout
-                    bat "kubectl rollout status deployment/nginx-app -n jenkins-demo"
+                    bat "kubectl rollout status deployment/hello-nginx -n project1"
                 }
             }
         }
