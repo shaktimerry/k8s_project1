@@ -30,26 +30,31 @@ pipeline {
         }
 
         // NEW STAGE
-        stage('Deploy to Kubernetes') {
-            steps {
-                // Replace image in deployment.yaml
-                bat "powershell -Command \\"(Get-Content k8s\\\\deployment.yaml) -replace 'shaktimerry4/nginx-app:latest','%IMAGE%' | Set-Content k8s\\\\deployment.yaml\\""
+       stage('Deploy to Kubernetes') {
+    steps {
+        withCredentials([file(credentialsId: 'k8s', variable: 'KUBECONFIG')]) {
 
-                // Apply all Kubernetes manifests
-                bat "kubectl apply -f k8s/namespace.yaml"
-                bat "kubectl apply -f k8s/configmap.yaml"
-                bat "kubectl apply -f k8s/secret.yaml"
-                bat "kubectl apply -f k8s/pvc.yaml"
-                bat "kubectl apply -f k8s/deployment.yaml"
-                bat "kubectl apply -f k8s/service.yaml"
-                bat "kubectl apply -f k8s/hpa.yaml"
-                bat "kubectl apply -f k8s/vpa.yaml"
+            bat "echo Using kubeconfig: %KUBECONFIG%"
+            bat "kubectl config current-context"
 
-                // Wait for rollout
-                bat "kubectl rollout status deployment/nginx-app -n jenkins-demo"
-            }
+            // Replace image in deployment.yaml
+            bat "powershell -Command \\"(Get-Content k8s\\\\deployment.yaml) -replace 'shaktimerry4/nginx-app:latest','%IMAGE%' | Set-Content k8s\\\\deployment.yaml\\""
+
+            // Apply manifests
+            bat "kubectl apply -f k8s/namespace.yaml"
+            bat "kubectl apply -f k8s/configmap.yaml"
+            bat "kubectl apply -f k8s/secret.yaml"
+            bat "kubectl apply -f k8s/pvc.yaml"
+            bat "kubectl apply -f k8s/deployment.yaml"
+            bat "kubectl apply -f k8s/service.yaml"
+            bat "kubectl apply -f k8s/hpa.yaml"
+            bat "kubectl apply -f k8s/vpa.yaml"
+
+            // Wait for rollout
+            bat "kubectl rollout status deployment/nginx-app -n jenkins-demo"
         }
     }
+}
 
     post {
         success {
