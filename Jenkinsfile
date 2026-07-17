@@ -43,8 +43,8 @@ pipeline {
                     bat "kubectl apply -f k8s/pvc.yaml"
                     bat "kubectl apply -f k8s/deployment.yaml"
                     bat "kubectl apply -f k8s/service.yaml"
-                    bat "kubectl apply -f k8s/hpa.yaml"
-                    bat "kubectl apply -f k8s/vpa.yaml"
+                    // bat "kubectl apply -f k8s/hpa.yaml"
+                    // bat "kubectl apply -f k8s/vpa.yaml"
 
                     // Update deployment with the newly built image
                     bat "kubectl set image deployment/nginx-app nginx-app=%IMAGE% -n jenkins-demo"
