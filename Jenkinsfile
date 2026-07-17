@@ -32,15 +32,12 @@ pipeline {
         // NEW STAGE
        stage('Deploy to Kubernetes') {
     steps {
-        withCredentials([file(credentialsId: 'k8s', variable: 'KUBECONFIG')]) {
+        withCredentials([file(credentialsId: 'docker-desktop-kubeconfig', variable: 'KUBECONFIG')]) {
 
             bat "echo Using kubeconfig: %KUBECONFIG%"
             bat "kubectl config current-context"
 
-            // Replace image in deployment.yaml
-            bat "powershell -Command \\"(Get-Content k8s\\\\deployment.yaml) -replace 'shaktimerry4/nginx-app:latest','%IMAGE%' | Set-Content k8s\\\\deployment.yaml\\""
-
-            // Apply manifests
+            // Apply base manifests
             bat "kubectl apply -f k8s/namespace.yaml"
             bat "kubectl apply -f k8s/configmap.yaml"
             bat "kubectl apply -f k8s/secret.yaml"
@@ -49,6 +46,9 @@ pipeline {
             bat "kubectl apply -f k8s/service.yaml"
             bat "kubectl apply -f k8s/hpa.yaml"
             bat "kubectl apply -f k8s/vpa.yaml"
+
+            // Update deployment with the newly built image
+            bat "kubectl set image deployment/nginx-app nginx-app=%IMAGE% -n jenkins-demo"
 
             // Wait for rollout
             bat "kubectl rollout status deployment/nginx-app -n jenkins-demo"
