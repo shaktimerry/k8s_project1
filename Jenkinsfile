@@ -28,11 +28,32 @@ pipeline {
                 bat "docker push %IMAGE%"
             }
         }
+
+        // NEW STAGE
+        stage('Deploy to Kubernetes') {
+            steps {
+                // Replace image in deployment.yaml
+                bat "powershell -Command \\"(Get-Content k8s\\\\deployment.yaml) -replace 'shaktimerry4/nginx-app:latest','%IMAGE%' | Set-Content k8s\\\\deployment.yaml\\""
+
+                // Apply all Kubernetes manifests
+                bat "kubectl apply -f k8s/namespace.yaml"
+                bat "kubectl apply -f k8s/configmap.yaml"
+                bat "kubectl apply -f k8s/secret.yaml"
+                bat "kubectl apply -f k8s/pvc.yaml"
+                bat "kubectl apply -f k8s/deployment.yaml"
+                bat "kubectl apply -f k8s/service.yaml"
+                bat "kubectl apply -f k8s/hpa.yaml"
+                bat "kubectl apply -f k8s/vpa.yaml"
+
+                // Wait for rollout
+                bat "kubectl rollout status deployment/nginx-app -n jenkins-demo"
+            }
+        }
     }
 
     post {
         success {
-            echo 'Image pushed successfully'
+            echo 'Image pushed and deployed successfully'
 
             // Remove local Docker image
             bat "docker rmi %IMAGE% || exit /b 0"
