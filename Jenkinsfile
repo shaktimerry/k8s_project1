@@ -29,32 +29,32 @@ pipeline {
             }
         }
 
-        // NEW STAGE
-       stage('Deploy to Kubernetes') {
-    steps {
-        withCredentials([file(credentialsId: 'docker-desktop-kubeconfig', variable: 'KUBECONFIG')]) {
+        stage('Deploy to Kubernetes') {
+            steps {
+                withCredentials([file(credentialsId: 'k8s', variable: 'KUBECONFIG')]) {
 
-            bat "echo Using kubeconfig: %KUBECONFIG%"
-            bat "kubectl config current-context"
+                    bat "echo Using kubeconfig: %KUBECONFIG%"
+                    bat "kubectl config current-context"
 
-            // Apply base manifests
-            bat "kubectl apply -f k8s/namespace.yaml"
-            bat "kubectl apply -f k8s/configmap.yaml"
-            bat "kubectl apply -f k8s/secret.yaml"
-            bat "kubectl apply -f k8s/pvc.yaml"
-            bat "kubectl apply -f k8s/deployment.yaml"
-            bat "kubectl apply -f k8s/service.yaml"
-            bat "kubectl apply -f k8s/hpa.yaml"
-            bat "kubectl apply -f k8s/vpa.yaml"
+                    // Apply base manifests
+                    bat "kubectl apply -f k8s/namespace.yaml"
+                    bat "kubectl apply -f k8s/configmap.yaml"
+                    bat "kubectl apply -f k8s/secret.yaml"
+                    bat "kubectl apply -f k8s/pvc.yaml"
+                    bat "kubectl apply -f k8s/deployment.yaml"
+                    bat "kubectl apply -f k8s/service.yaml"
+                    bat "kubectl apply -f k8s/hpa.yaml"
+                    bat "kubectl apply -f k8s/vpa.yaml"
 
-            // Update deployment with the newly built image
-            bat "kubectl set image deployment/nginx-app nginx-app=%IMAGE% -n jenkins-demo"
+                    // Update deployment with the newly built image
+                    bat "kubectl set image deployment/nginx-app nginx-app=%IMAGE% -n jenkins-demo"
 
-            // Wait for rollout
-            bat "kubectl rollout status deployment/nginx-app -n jenkins-demo"
+                    // Wait for rollout
+                    bat "kubectl rollout status deployment/nginx-app -n jenkins-demo"
+                }
+            }
         }
     }
-}
 
     post {
         success {
@@ -69,5 +69,4 @@ pipeline {
             cleanWs()
         }
     }
-}
 }
